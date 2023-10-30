@@ -110,7 +110,7 @@ try:
 
     atexit.register(close_log)
 except Exception as e:
-    print(f"[ComfyUI-Manager] Logging failed: {e}")
+    print(f"[ComfyUI-Blueberry] Logging failed: {e}")
 
 
 print("** ComfyUI start up time:", datetime.datetime.now())
@@ -122,7 +122,7 @@ script_list_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "st
 # Check if script_list_path exists
 if os.path.exists(script_list_path):
     print("\n#######################################################################")
-    print("[ComfyUI-Manager] Starting dependency installation/(de)activation for the extension\n")
+    print("[ComfyUI-Blueberry] Starting dependency installation/(de)activation for the extension\n")
 
     executed = set()
     # Read each line from the file and convert it to a list using eval
@@ -135,7 +135,7 @@ if os.path.exists(script_list_path):
 
             try:
                 script = eval(line)
-                print(f"\n## ComfyUI-Manager: EXECUTE => {script[1:]}")
+                print(f"\n## ComfyUI-Blueberry: EXECUTE => {script[1:]}")
 
                 print(f"\n## Execute install/(de)activation script for '{script[0]}'")
                 process = subprocess.Popen(script[1:], cwd=script[0], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
@@ -160,6 +160,6 @@ if os.path.exists(script_list_path):
     if os.path.exists(script_list_path):
         os.remove(script_list_path)
         
-    print("\n[ComfyUI-Manager] Startup script completed.")
+    print("\n[ComfyUI-Blueberry] Startup script completed.")
     print("#######################################################################\n")
 

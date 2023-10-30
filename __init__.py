@@ -33,22 +33,22 @@ except:
     my_path = os.path.dirname(__file__)
     requirements_path = os.path.join(my_path, "requirements.txt")
 
-    print(f"## ComfyUI-Manager: installing dependencies")
+    print(f"## ComfyUI-Blueberry: installing dependencies")
 
     run_script([sys.executable, '-s', '-m', 'pip', 'install', '-r', requirements_path])
 
     try:
         import git
     except:
-        print(f"## [ERROR] ComfyUI-Manager: Attempting to reinstall dependencies using an alternative method.")
+        print(f"## [ERROR] ComfyUI-Blueberry: Attempting to reinstall dependencies using an alternative method.")
         run_script([sys.executable, '-s', '-m', 'pip', 'install', '--user', '-r', requirements_path])
 
         try:
             import git
         except:
-            print(f"## [ERROR] ComfyUI-Manager: Failed to install the GitPython package in the correct Python environment. Please install it manually in the appropriate environment. (You can seek help at https://app.element.io/#/room/%23comfyui_space%3Amatrix.org)")
+            print(f"## [ERROR] ComfyUI-Blueberry: Failed to install the GitPython package in the correct Python environment. Please install it manually in the appropriate environment. (You can seek help at https://app.element.io/#/room/%23comfyui_space%3Amatrix.org)")
 
-    print(f"## ComfyUI-Manager: installing dependencies done.")
+    print(f"## ComfyUI-Blueberry: installing dependencies done.")
 
 
 sys.path.append('../..')
@@ -56,7 +56,7 @@ sys.path.append('../..')
 from torchvision.datasets.utils import download_url
 
 # ensure .js
-print("### Loading: ComfyUI-Manager (V0.36)")
+print("### Loading: ComfyUI-Blueberry (V0.36)")
 
 comfy_ui_required_revision = 1240
 comfy_ui_revision = "Unknown"
@@ -116,7 +116,7 @@ def read_config():
         if channel_url_list_is_valid:
             ch_url_list = default_conf['channel_url_list']
         else:
-            print(f"[WARN] ComfyUI-Manager: channel_url_list is invalid format")
+            print(f"[WARN] ComfyUI-Blueberry: channel_url_list is invalid format")
             ch_url_list = ''
 
         return {
@@ -196,14 +196,14 @@ def try_install_script(url, repo_path, install_cmd):
 
         return True
     else:
-        print(f"\n## ComfyUI-Manager: EXECUTE => {install_cmd}")
+        print(f"\n## ComfyUI-Blueberry: EXECUTE => {install_cmd}")
         code = run_script(install_cmd, cwd=repo_path)
 
         if platform.system() == "Windows":
             try:
                 if int(comfy_ui_revision) < comfy_ui_required_revision:
                     print("\n\n###################################################################")
-                    print(f"[WARN] ComfyUI-Manager: Your ComfyUI version ({comfy_ui_revision}) is too old. Please update to the latest version.")
+                    print(f"[WARN] ComfyUI-Blueberry: Your ComfyUI version ({comfy_ui_revision}) is too old. Please update to the latest version.")
                     print(f"[WARN] The extension installation feature may not work properly in the current installed ComfyUI version on Windows environment.")
                     print("###################################################################\n\n")
             except:
@@ -224,7 +224,7 @@ def print_comfyui_version():
 
         try:
             if int(comfy_ui_revision) < comfy_ui_required_revision:
-                print(f"\n\n## [WARN] ComfyUI-Manager: Your ComfyUI version ({comfy_ui_revision}) is too old. Please update to the latest version. ##\n\n")
+                print(f"\n\n## [WARN] ComfyUI-Blueberry: Your ComfyUI version ({comfy_ui_revision}) is too old. Please update to the latest version. ##\n\n")
         except:
             pass
 
@@ -386,13 +386,13 @@ def setup_js():
         if os.path.exists(js_dest_path):
             shutil.rmtree(js_dest_path)
     else:
-        print(f"[WARN] ComfyUI-Manager: Your ComfyUI version is outdated. Please update to the latest version.")
+        print(f"[WARN] ComfyUI-Blueberry: Your ComfyUI version is outdated. Please update to the latest version.")
         # setup js
         if not os.path.exists(js_dest_path):
             os.makedirs(js_dest_path)
         js_src_path = os.path.join(comfyui_manager_path, "js", "comfyui-manager.js")
 
-        print(f"### ComfyUI-Manager: Copy .js from '{js_src_path}' to '{js_dest_path}'")
+        print(f"### ComfyUI-Blueberry: Copy .js from '{js_src_path}' to '{js_dest_path}'")
         shutil.copy(js_src_path, js_dest_path)
 
 
@@ -1059,7 +1059,7 @@ async def update_custom_node(request):
     return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.get("/comfyui_manager/update_comfyui")
+@server.PromptServer.instance.routes.get("/comfyui_blueberry/update_comfyui")
 async def update_comfyui(request):
     print(f"Update ComfyUI")
 
@@ -1148,7 +1148,7 @@ async def install_model(request):
     return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.get("/manager/preview_method")
+@server.PromptServer.instance.routes.get("/blueberry/preview_method")
 async def preview_method(request):
     if "value" in request.rel_url.query:
         set_preview_method(request.rel_url.query['value'])
@@ -1159,7 +1159,7 @@ async def preview_method(request):
     return web.Response(status=200)
 
 
-@server.PromptServer.instance.routes.get("/manager/badge_mode")
+@server.PromptServer.instance.routes.get("/blueberry/badge_mode")
 async def badge_mode(request):
     if "value" in request.rel_url.query:
         set_badge_mode(request.rel_url.query['value'])
@@ -1170,7 +1170,7 @@ async def badge_mode(request):
     return web.Response(status=200)
 
 
-@server.PromptServer.instance.routes.get("/manager/channel_url_list")
+@server.PromptServer.instance.routes.get("/blueberry/channel_url_list")
 async def channel_url_list(request):
     channels = default_channels+","+get_config()['channel_url_list']
     channels = channels.split(',')

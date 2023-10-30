@@ -260,7 +260,7 @@ def gen_json(node_info):
         json.dump(data, file, indent=4, sort_keys=True)
 
 
-print("### ComfyUI Manager Node Scanner ###")
+print("### ComfyUI Blueberry Node Scanner ###")
 
 print("\n# Updating extensions\n")
 updated_node_info = update_custom_nodes()

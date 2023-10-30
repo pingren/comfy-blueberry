@@ -9,7 +9,7 @@ var update_all_button = null;
 var badge_mode = "none";
 
 async function init_badge_mode() {
-    api.fetchApi('/manager/badge_mode')
+    api.fetchApi('/blueberry/badge_mode')
     .then(response => response.text())
     .then(data => { badge_mode = data; })
 }
@@ -18,7 +18,7 @@ await init_badge_mode();
 
 async function getCustomnodeMappings() {
 	var mode = "url";
-	if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+	if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
 		mode = "local";
 
 	const response = await api.fetchApi(`/customnode/getmappings?mode=${mode}`);
@@ -30,7 +30,7 @@ async function getCustomnodeMappings() {
 async function getUnresolvedNodesInComponent() {
 	try {
 		var mode = "url";
-		if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+		if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
 			mode = "local";
 
 		const response = await api.fetchApi(`/component/get_unresolved`);
@@ -45,11 +45,11 @@ async function getUnresolvedNodesInComponent() {
 
 async function getCustomNodes() {
 	var mode = "url";
-	if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+	if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
 		mode = "local";
 
 	var skip_update = "";
-	if(ManagerMenuDialog.instance.update_check_checkbox.checked)
+	if(BlueberryMenuDialog.instance.update_check_checkbox.checked)
 		skip_update = "&skip_update=true";
 
 	const response = await api.fetchApi(`/customnode/getlist?mode=${mode}${skip_update}`);
@@ -86,11 +86,11 @@ let nicknames = await fetchNicknames();
 
 async function getAlterList() {
 	var mode = "url";
-	if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+	if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
 		mode = "local";
 
 	var skip_update = "";
-	if(ManagerMenuDialog.instance.update_check_checkbox.checked)
+	if(BlueberryMenuDialog.instance.update_check_checkbox.checked)
 		skip_update = "&skip_update=true";
 
 	const response = await api.fetchApi(`/alternatives/getlist?mode=${mode}${skip_update}`);
@@ -101,7 +101,7 @@ async function getAlterList() {
 
 async function getModelList() {
 	var mode = "url";
-	if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+	if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
 		mode = "local";
 
 	const response = await api.fetchApi(`/externalmodel/getlist?mode=${mode}`);
@@ -171,7 +171,7 @@ async function updateComfyUI() {
 	update_comfyui_button.style.backgroundColor = "gray";
 
 	try {
-		const response = await api.fetchApi('/comfyui_manager/update_comfyui');
+		const response = await api.fetchApi('/comfyui_blueberry/update_comfyui');
 
 		if(response.status == 400) {
 			app.ui.dialog.show('Failed to update ComfyUI.');
@@ -210,7 +210,7 @@ async function fetchUpdates(update_check_checkbox) {
 
 	try {
 		var mode = "url";
-        if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+        if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
             mode = "local";
 
 		const response = await api.fetchApi(`/customnode/fetch_updates?mode=${mode}`);
@@ -253,11 +253,11 @@ async function updateAll(update_check_checkbox) {
 
 	try {
 		var mode = "url";
-        if(ManagerMenuDialog.instance.local_mode_checkbox.checked)
+        if(BlueberryMenuDialog.instance.local_mode_checkbox.checked)
             mode = "local";
 
 		update_all_button.innerText = "Updating all...";
-		const response1 = await api.fetchApi('/comfyui_manager/update_comfyui');
+		const response1 = await api.fetchApi('/comfyui_blueberry/update_comfyui');
 		const response2 = await api.fetchApi(`/customnode/update_all?mode=${mode}`);
 
 		if(response1.status != 200 && response2.status != 201) {
@@ -1781,7 +1781,7 @@ class ModelInstaller extends ComfyDialog {
 
 
 // -----------
-class ManagerMenuDialog extends ComfyDialog {
+class BlueberryMenuDialog extends ComfyDialog {
 	static instance = null;
 	local_mode_checkbox = null;
 
@@ -1827,12 +1827,12 @@ class ManagerMenuDialog extends ComfyDialog {
         preview_combo.appendChild($el('option', {value:'latent2rgb', text:'Preview method: Latent2RGB (fast)'}, []));
         preview_combo.appendChild($el('option', {value:'none', text:'Preview method: None (very fast)'}, []));
 
-        api.fetchApi('/manager/preview_method')
+        api.fetchApi('/blueberry/preview_method')
         .then(response => response.text())
         .then(data => { preview_combo.value = data; })
 
 		preview_combo.addEventListener('change', function(event) {
-            api.fetchApi(`/manager/preview_method?value=${event.target.value}`);
+            api.fetchApi(`/blueberry/preview_method?value=${event.target.value}`);
 		});
 
         // nickname
@@ -1841,19 +1841,19 @@ class ManagerMenuDialog extends ComfyDialog {
         badge_combo.appendChild($el('option', {value:'nick', text:'Badge: Nickname'}, []));
         badge_combo.appendChild($el('option', {value:'id_nick', text:'Badge: #ID Nickname'}, []));
 
-        api.fetchApi('/manager/badge_mode')
+        api.fetchApi('/blueberry/badge_mode')
         .then(response => response.text())
         .then(data => { badge_combo.value = data; badge_mode = data; });
 
 		badge_combo.addEventListener('change', function(event) {
-            api.fetchApi(`/manager/badge_mode?value=${event.target.value}`);
+            api.fetchApi(`/blueberry/badge_mode?value=${event.target.value}`);
             badge_mode = event.target.value;
             app.graph.setDirtyCanvas(true);
 		});
 
         // channel
 		let channel_combo = document.createElement("select");
-        api.fetchApi('/manager/channel_url_list')
+        api.fetchApi('/blueberry/channel_url_list')
         .then(response => response.json())
         .then(async data => {
             try {
@@ -1866,7 +1866,7 @@ class ManagerMenuDialog extends ComfyDialog {
 	            }
 
 				channel_combo.addEventListener('change', function(event) {
-		            api.fetchApi(`/manager/channel_url_list?value=${event.target.value}`);
+		            api.fetchApi(`/blueberry/channel_url_list?value=${event.target.value}`);
 				});
 
                 channel_combo.value = data.selected;
@@ -1878,7 +1878,7 @@ class ManagerMenuDialog extends ComfyDialog {
 
 		const res =
 			[
-				$el("tr.td", {width:"100%"}, [$el("font", {size:6, color:"white"}, [`ComfyUI Manager Menu`])]),
+				$el("tr.td", {width:"100%"}, [$el("font", {size:6, color:"white"}, [`ComfyUI Blueberry Menu`])]),
 				$el("br", {}, []),
 				$el("div", {}, [this.local_mode_checkbox, checkbox_text, this.update_check_checkbox, uc_checkbox_text]),
 				$el("br", {}, []),
@@ -1987,7 +1987,7 @@ class ManagerMenuDialog extends ComfyDialog {
 }
 
 app.registerExtension({
-	name: "Comfy.ManagerMenu",
+	name: "Comfy.BlueberryMenu",
 
 	async setup() {
 		const menu = document.querySelector(".comfy-menu");
@@ -1998,11 +1998,11 @@ app.registerExtension({
 		menu.append(separator);
 
 		const managerButton = document.createElement("button");
-		managerButton.textContent = "Manager";
+		managerButton.textContent = "Blueberry";
 		managerButton.onclick = () => {
-				if(!ManagerMenuDialog.instance)
-					ManagerMenuDialog.instance = new ManagerMenuDialog();
-				ManagerMenuDialog.instance.show();
+				if(!BlueberryMenuDialog.instance)
+					BlueberryMenuDialog.instance = new BlueberryMenuDialog();
+				BlueberryMenuDialog.instance.show();
 			}
 		menu.append(managerButton);
 	},
