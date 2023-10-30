@@ -52,7 +52,7 @@ async function getCustomNodes() {
 	if(BlueberryMenuDialog.instance.update_check_checkbox.checked)
 		skip_update = "&skip_update=true";
 
-	const response = await api.fetchApi(`/customnode/getlist?mode=${mode}${skip_update}`);
+	const response = await api.fetchApi(`/blueberry/getlist?mode=${mode}${skip_update}`);
 
 	const data = await response.json();
 	return data;
@@ -177,7 +177,7 @@ async function exportComfyInfo() {
 	app.ui.dialog.show('To be implemented.');
 	app.ui.dialog.element.style.zIndex = 9999;
 
-	var data = (await getCustomNodes()).custom_nodes;
+	const data = (await getCustomNodes()).custom_nodes;
 	const mappings = await getCustomnodeMappings();
 
 	// build name->url map
@@ -199,7 +199,15 @@ async function exportComfyInfo() {
 
 	const custom_graph_nodes_data = data.filter(node => node.files.some(file => graph_nodes.has(file)));
 
-	console.log(custom_graph_nodes_data);
+	console.log("Graph Custom Nodes:", custom_graph_nodes_data);
+
+	const response = await api.fetchApi(`/blueberry/info`,  {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify(custom_graph_nodes_data)
+	});
+	const info = await response.json();
+	console.log("Info: ", info);
 }
 
 async function updateComfyUI() {

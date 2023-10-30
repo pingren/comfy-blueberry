@@ -532,7 +532,7 @@ def check_custom_nodes_installed(json_obj, do_fetch=False, do_update_check=True,
         print(f"\x1b[2K\rUpdate check done.")
 
 
-@server.PromptServer.instance.routes.get("/customnode/getmappings")
+@server.PromptServer.instance.routes.get("/blueberry/getmappings")
 async def fetch_customnode_mappings(request):
     if request.rel_url.query["mode"] == "local":
         uri = local_db_extension_node_mappings
@@ -544,50 +544,50 @@ async def fetch_customnode_mappings(request):
     return web.json_response(json_obj, content_type='application/json')
 
 
-@server.PromptServer.instance.routes.get("/customnode/fetch_updates")
-async def fetch_updates(request):
-    try:
-        if request.rel_url.query["mode"] == "local":
-            uri = local_db_custom_node_list
-        else:
-            uri = get_config()['channel_url'] + '/custom-node-list.json'
+# @server.PromptServer.instance.routes.get("/customnode/fetch_updates")
+# async def fetch_updates(request):
+#     try:
+#         if request.rel_url.query["mode"] == "local":
+#             uri = local_db_custom_node_list
+#         else:
+#             uri = get_config()['channel_url'] + '/custom-node-list.json'
 
-        json_obj = await get_data(uri)
-        check_custom_nodes_installed(json_obj, True)
+#         json_obj = await get_data(uri)
+#         check_custom_nodes_installed(json_obj, True)
 
-        update_exists = any('custom_nodes' in json_obj and 'installed' in node and node['installed'] == 'Update' for node in
-                            json_obj['custom_nodes'])
+#         update_exists = any('custom_nodes' in json_obj and 'installed' in node and node['installed'] == 'Update' for node in
+#                             json_obj['custom_nodes'])
 
-        if update_exists:
-            return web.Response(status=201)
+#         if update_exists:
+#             return web.Response(status=201)
 
-        return web.Response(status=200)
-    except:
-        return web.Response(status=400)
-
-
-@server.PromptServer.instance.routes.get("/customnode/update_all")
-async def update_all(request):
-    try:
-        if request.rel_url.query["mode"] == "local":
-            uri = local_db_custom_node_list
-        else:
-            uri = get_config()['channel_url'] + '/custom-node-list.json'
-
-        json_obj = await get_data(uri)
-        check_custom_nodes_installed(json_obj, do_update=True)
-
-        update_exists = any(item['installed'] == 'Update' for item in json_obj['custom_nodes'])
-
-        if update_exists:
-            return web.Response(status=201)
-
-        return web.Response(status=200)
-    except:
-        return web.Response(status=400)
+#         return web.Response(status=200)
+#     except:
+#         return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.get("/customnode/getlist")
+# @server.PromptServer.instance.routes.get("/customnode/update_all")
+# async def update_all(request):
+#     try:
+#         if request.rel_url.query["mode"] == "local":
+#             uri = local_db_custom_node_list
+#         else:
+#             uri = get_config()['channel_url'] + '/custom-node-list.json'
+
+#         json_obj = await get_data(uri)
+#         check_custom_nodes_installed(json_obj, do_update=True)
+
+#         update_exists = any(item['installed'] == 'Update' for item in json_obj['custom_nodes'])
+
+#         if update_exists:
+#             return web.Response(status=201)
+
+#         return web.Response(status=200)
+#     except:
+#         return web.Response(status=400)
+
+
+@server.PromptServer.instance.routes.get("/blueberry/getlist")
 async def fetch_customnode_list(request):
     if "skip_update" in request.rel_url.query and request.rel_url.query["skip_update"] == "true":
         skip_update = True
@@ -604,37 +604,50 @@ async def fetch_customnode_list(request):
 
     return web.json_response(json_obj, content_type='application/json')
 
+@server.PromptServer.instance.routes.post("/blueberry/info")
+async def install_custom_node(request):
+    json_data = await request.json()
 
-@server.PromptServer.instance.routes.get("/alternatives/getlist")
-async def fetch_alternatives_list(request):
-    if "skip_update" in request.rel_url.query and request.rel_url.query["skip_update"] == "true":
-        skip_update = True
-    else:
-        skip_update = False
+    print(f"Info Payload '{json_data}'")
 
-    if request.rel_url.query["mode"] == "local":
-        uri1 = local_db_alter
-        uri2 = local_db_custom_node_list
-    else:
-        uri1 = get_config()['channel_url'] + '/alter-list.json'
-        uri2 = get_config()['channel_url'] + '/custom-node-list.json'
+    res = True
 
-    alter_json = await get_data(uri1)
-    custom_node_json = await get_data(uri2)
+    if res:
+        print(f"After restarting ComfyUI, please refresh the browser.")
+        return web.json_response({}, content_type='application/json')
 
-    fileurl_to_custom_node = {}
-    for item in custom_node_json['custom_nodes']:
-        for fileurl in item['files']:
-            fileurl_to_custom_node[fileurl] = item
+    return web.Response(status=400)
 
-    for item in alter_json['items']:
-        fileurl = item['id']
-        if fileurl in fileurl_to_custom_node:
-            custom_node = fileurl_to_custom_node[fileurl]
-            check_a_custom_node_installed(custom_node, not skip_update)
-            item['custom_node'] = custom_node
+# @server.PromptServer.instance.routes.get("/alternatives/getlist")
+# async def fetch_alternatives_list(request):
+#     if "skip_update" in request.rel_url.query and request.rel_url.query["skip_update"] == "true":
+#         skip_update = True
+#     else:
+#         skip_update = False
 
-    return web.json_response(alter_json, content_type='application/json')
+#     if request.rel_url.query["mode"] == "local":
+#         uri1 = local_db_alter
+#         uri2 = local_db_custom_node_list
+#     else:
+#         uri1 = get_config()['channel_url'] + '/alter-list.json'
+#         uri2 = get_config()['channel_url'] + '/custom-node-list.json'
+
+#     alter_json = await get_data(uri1)
+#     custom_node_json = await get_data(uri2)
+
+#     fileurl_to_custom_node = {}
+#     for item in custom_node_json['custom_nodes']:
+#         for fileurl in item['files']:
+#             fileurl_to_custom_node[fileurl] = item
+
+#     for item in alter_json['items']:
+#         fileurl = item['id']
+#         if fileurl in fileurl_to_custom_node:
+#             custom_node = fileurl_to_custom_node[fileurl]
+#             check_a_custom_node_installed(custom_node, not skip_update)
+#             item['custom_node'] = custom_node
+
+#     return web.json_response(alter_json, content_type='application/json')
 
 
 def check_model_installed(json_obj):
@@ -650,17 +663,17 @@ def check_model_installed(json_obj):
                 item['installed'] = 'False'
 
 
-@server.PromptServer.instance.routes.get("/externalmodel/getlist")
-async def fetch_externalmodel_list(request):
-    if request.rel_url.query["mode"] == "local":
-        uri = local_db_model
-    else:
-        uri = get_config()['channel_url'] + '/model-list.json'
+# @server.PromptServer.instance.routes.get("/externalmodel/getlist")
+# async def fetch_externalmodel_list(request):
+#     if request.rel_url.query["mode"] == "local":
+#         uri = local_db_model
+#     else:
+#         uri = get_config()['channel_url'] + '/model-list.json'
 
-    json_obj = await get_data(uri)
-    check_model_installed(json_obj)
+#     json_obj = await get_data(uri)
+#     check_model_installed(json_obj)
 
-    return web.json_response(json_obj, content_type='application/json')
+#     return web.json_response(json_obj, content_type='application/json')
 
 
 def unzip_install(files):
@@ -980,172 +993,172 @@ def gitclone_update(files):
     return True
 
 
-@server.PromptServer.instance.routes.post("/customnode/install")
-async def install_custom_node(request):
-    json_data = await request.json()
+# @server.PromptServer.instance.routes.post("/customnode/install")
+# async def install_custom_node(request):
+#     json_data = await request.json()
 
-    install_type = json_data['install_type']
+#     install_type = json_data['install_type']
 
-    print(f"Install custom node '{json_data['title']}'")
+#     print(f"Install custom node '{json_data['title']}'")
 
-    res = False
+#     res = False
 
-    if len(json_data['files']) == 0:
-        return web.Response(status=400)
+#     if len(json_data['files']) == 0:
+#         return web.Response(status=400)
 
-    if install_type == "unzip":
-        res = unzip_install(json_data['files'])
+#     if install_type == "unzip":
+#         res = unzip_install(json_data['files'])
 
-    if install_type == "copy":
-        js_path_name = json_data['js_path'] if 'js_path' in json_data else '.'
-        res = copy_install(json_data['files'], js_path_name)
+#     if install_type == "copy":
+#         js_path_name = json_data['js_path'] if 'js_path' in json_data else '.'
+#         res = copy_install(json_data['files'], js_path_name)
 
-    elif install_type == "git-clone":
-        res = gitclone_install(json_data['files'])
+#     elif install_type == "git-clone":
+#         res = gitclone_install(json_data['files'])
 
-    if 'pip' in json_data:
-        for pname in json_data['pip']:
-            install_cmd = [sys.executable, "-m", "pip", "install", pname]
-            try_install_script(json_data['files'][0], ".", install_cmd)
+#     if 'pip' in json_data:
+#         for pname in json_data['pip']:
+#             install_cmd = [sys.executable, "-m", "pip", "install", pname]
+#             try_install_script(json_data['files'][0], ".", install_cmd)
 
-    if res:
-        print(f"After restarting ComfyUI, please refresh the browser.")
-        return web.json_response({}, content_type='application/json')
+#     if res:
+#         print(f"After restarting ComfyUI, please refresh the browser.")
+#         return web.json_response({}, content_type='application/json')
 
-    return web.Response(status=400)
-
-
-@server.PromptServer.instance.routes.post("/customnode/uninstall")
-async def uninstall_custom_node(request):
-    json_data = await request.json()
-
-    install_type = json_data['install_type']
-
-    print(f"Uninstall custom node '{json_data['title']}'")
-
-    res = False
-
-    if install_type == "copy":
-        js_path_name = json_data['js_path'] if 'js_path' in json_data else '.'
-        res = copy_uninstall(json_data['files'], js_path_name)
-
-    elif install_type == "git-clone":
-        res = gitclone_uninstall(json_data['files'])
-
-    if res:
-        print(f"After restarting ComfyUI, please refresh the browser.")
-        return web.json_response({}, content_type='application/json')
-
-    return web.Response(status=400)
+#     return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.post("/customnode/update")
-async def update_custom_node(request):
-    json_data = await request.json()
+# @server.PromptServer.instance.routes.post("/customnode/uninstall")
+# async def uninstall_custom_node(request):
+#     json_data = await request.json()
 
-    install_type = json_data['install_type']
+#     install_type = json_data['install_type']
 
-    print(f"Update custom node '{json_data['title']}'")
+#     print(f"Uninstall custom node '{json_data['title']}'")
 
-    res = False
+#     res = False
 
-    if install_type == "git-clone":
-        res = gitclone_update(json_data['files'])
+#     if install_type == "copy":
+#         js_path_name = json_data['js_path'] if 'js_path' in json_data else '.'
+#         res = copy_uninstall(json_data['files'], js_path_name)
 
-    if res:
-        print(f"After restarting ComfyUI, please refresh the browser.")
-        return web.json_response({}, content_type='application/json')
+#     elif install_type == "git-clone":
+#         res = gitclone_uninstall(json_data['files'])
 
-    return web.Response(status=400)
+#     if res:
+#         print(f"After restarting ComfyUI, please refresh the browser.")
+#         return web.json_response({}, content_type='application/json')
 
-
-@server.PromptServer.instance.routes.get("/comfyui_blueberry/update_comfyui")
-async def update_comfyui(request):
-    print(f"Update ComfyUI")
-
-    try:
-        repo_path = os.path.dirname(folder_paths.__file__)
-
-        if not os.path.exists(os.path.join(repo_path, '.git')):
-            print(f"ComfyUI update fail: The installed ComfyUI does not have a Git repository.")
-            return web.Response(status=400)
-
-        # version check
-        repo = git.Repo(repo_path)
-
-        current_branch = repo.active_branch
-        branch_name = current_branch.name
-
-        remote_name = 'origin'
-        remote = repo.remote(name=remote_name)
-        remote.fetch()
-
-        commit_hash = repo.head.commit.hexsha
-        remote_commit_hash = repo.refs[f'{remote_name}/{branch_name}'].object.hexsha
-
-        if commit_hash != remote_commit_hash:
-            git_pull(repo_path)
-            execute_install_script("ComfyUI", repo_path)
-            return web.Response(status=201)
-        else:
-            return web.Response(status=200)
-    except Exception as e:
-        print(f"ComfyUI update fail: {e}", file=sys.stderr)
-        pass
-
-    return web.Response(status=400)
+#     return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.post("/customnode/toggle_active")
-async def toggle_active(request):
-    json_data = await request.json()
+# @server.PromptServer.instance.routes.post("/customnode/update")
+# async def update_custom_node(request):
+#     json_data = await request.json()
 
-    install_type = json_data['install_type']
-    is_disabled = json_data['installed'] == "Disabled"
+#     install_type = json_data['install_type']
 
-    print(f"Update custom node '{json_data['title']}'")
+#     print(f"Update custom node '{json_data['title']}'")
 
-    res = False
+#     res = False
 
-    if install_type == "git-clone":
-        res = gitclone_set_active(json_data['files'], not is_disabled)
-    elif install_type == "copy":
-        res = copy_set_active(json_data['files'], not is_disabled, json_data.get('js_path', None))
+#     if install_type == "git-clone":
+#         res = gitclone_update(json_data['files'])
 
-    if res:
-        return web.json_response({}, content_type='application/json')
+#     if res:
+#         print(f"After restarting ComfyUI, please refresh the browser.")
+#         return web.json_response({}, content_type='application/json')
 
-    return web.Response(status=400)
+#     return web.Response(status=400)
 
 
-@server.PromptServer.instance.routes.post("/model/install")
-async def install_model(request):
-    json_data = await request.json()
+# @server.PromptServer.instance.routes.get("/comfyui_blueberry/update_comfyui")
+# async def update_comfyui(request):
+#     print(f"Update ComfyUI")
 
-    model_path = get_model_path(json_data)
+#     try:
+#         repo_path = os.path.dirname(folder_paths.__file__)
 
-    res = False
+#         if not os.path.exists(os.path.join(repo_path, '.git')):
+#             print(f"ComfyUI update fail: The installed ComfyUI does not have a Git repository.")
+#             return web.Response(status=400)
 
-    try:
-        if model_path is not None:
-            print(f"Install model '{json_data['name']}' into '{model_path}'")
+#         # version check
+#         repo = git.Repo(repo_path)
 
-            if json_data['url'].startswith('https://github.com') or json_data['url'].startswith('https://huggingface.co'):
-                model_dir = get_model_dir(json_data)
-                download_url(json_data['url'], model_dir)
-                return web.json_response({}, content_type='application/json')
-            else:
-                res = download_url_with_agent(json_data['url'], model_path)
-        else:
-            print(f"Model installation error: invalid model type - {json_data['type']}")
+#         current_branch = repo.active_branch
+#         branch_name = current_branch.name
 
-        if res:
-            return web.json_response({}, content_type='application/json')
-    except Exception as e:
-        print(f"[ERROR] {e}", file=sys.stderr)
-        pass
+#         remote_name = 'origin'
+#         remote = repo.remote(name=remote_name)
+#         remote.fetch()
 
-    return web.Response(status=400)
+#         commit_hash = repo.head.commit.hexsha
+#         remote_commit_hash = repo.refs[f'{remote_name}/{branch_name}'].object.hexsha
+
+#         if commit_hash != remote_commit_hash:
+#             git_pull(repo_path)
+#             execute_install_script("ComfyUI", repo_path)
+#             return web.Response(status=201)
+#         else:
+#             return web.Response(status=200)
+#     except Exception as e:
+#         print(f"ComfyUI update fail: {e}", file=sys.stderr)
+#         pass
+
+#     return web.Response(status=400)
+
+
+# @server.PromptServer.instance.routes.post("/customnode/toggle_active")
+# async def toggle_active(request):
+#     json_data = await request.json()
+
+#     install_type = json_data['install_type']
+#     is_disabled = json_data['installed'] == "Disabled"
+
+#     print(f"Update custom node '{json_data['title']}'")
+
+#     res = False
+
+#     if install_type == "git-clone":
+#         res = gitclone_set_active(json_data['files'], not is_disabled)
+#     elif install_type == "copy":
+#         res = copy_set_active(json_data['files'], not is_disabled, json_data.get('js_path', None))
+
+#     if res:
+#         return web.json_response({}, content_type='application/json')
+
+#     return web.Response(status=400)
+
+
+# @server.PromptServer.instance.routes.post("/model/install")
+# async def install_model(request):
+#     json_data = await request.json()
+
+#     model_path = get_model_path(json_data)
+
+#     res = False
+
+#     try:
+#         if model_path is not None:
+#             print(f"Install model '{json_data['name']}' into '{model_path}'")
+
+#             if json_data['url'].startswith('https://github.com') or json_data['url'].startswith('https://huggingface.co'):
+#                 model_dir = get_model_dir(json_data)
+#                 download_url(json_data['url'], model_dir)
+#                 return web.json_response({}, content_type='application/json')
+#             else:
+#                 res = download_url_with_agent(json_data['url'], model_path)
+#         else:
+#             print(f"Model installation error: invalid model type - {json_data['type']}")
+
+#         if res:
+#             return web.json_response({}, content_type='application/json')
+#     except Exception as e:
+#         print(f"[ERROR] {e}", file=sys.stderr)
+#         pass
+
+#     return web.Response(status=400)
 
 
 @server.PromptServer.instance.routes.get("/blueberry/preview_method")
