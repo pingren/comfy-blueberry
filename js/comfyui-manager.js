@@ -165,8 +165,41 @@ async function install_checked_custom_node(grid_rows, target_i, caller, mode) {
 }
 
 async function exportComfyInfo() {
+	// Will return information about current graph:
+	// - a list of nodes and their information in JSON format, with each node's git commit hash
+	// - comfy ui version (git commit hash)
+
+	// LiteGraph.registered_node_types get all registered nodes on the graph
+	// app.graph.serialize().nodes get all nodes on the graph
+	// Builtin nodes are included in app.graph.serialize().nodes
+	// https://github.com/comfyanonymous/ComfyUI/blob/41b07ff8d7807292b56147e12347ab96972c9406/nodes.py#L1659
+
 	app.ui.dialog.show('To be implemented.');
 	app.ui.dialog.element.style.zIndex = 9999;
+
+	var data = (await getCustomNodes()).custom_nodes;
+	const mappings = await getCustomnodeMappings();
+
+	// build name->url map
+	const name_to_url = {};
+	for (const url in mappings) {
+		const names = mappings[url];
+		for(const name in names[0]) {
+			name_to_url[names[0][name]] = url;
+		}
+	}
+
+	const graph_nodes = new Set();
+	const nodes = app.graph.serialize().nodes;
+	for (let i in nodes) {
+		const node_type = nodes[i].type;
+		const url = name_to_url[node_type.trim()];
+		graph_nodes.add(url);
+	}
+
+	const custom_graph_nodes_data = data.filter(node => node.files.some(file => graph_nodes.has(file)));
+
+	console.log(custom_graph_nodes_data);
 }
 
 async function updateComfyUI() {
@@ -1894,7 +1927,7 @@ class BlueberryMenuDialog extends ComfyDialog {
 				$el("tr.td", {width:"100%"}, [$el("font", {size:6, color:"white"}, [`ComfyUI Blueberry Menu`])]),
 				$el("br", {}, []),
 				export_nodes_information_button,
-				
+
 				// $el("div", {}, [this.local_mode_checkbox, checkbox_text, this.update_check_checkbox, uc_checkbox_text]),
 				// $el("br", {}, []),
 				// $el("button", {
