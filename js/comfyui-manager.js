@@ -2,7 +2,7 @@ import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js"
 import { ComfyDialog, $el } from "../../scripts/ui.js";
 import {ComfyWidgets} from "../../scripts/widgets.js";
-
+var export_nodes_information_button = null;
 var update_comfyui_button = null;
 var fetch_updates_button = null;
 var update_all_button = null;
@@ -162,6 +162,11 @@ async function install_checked_custom_node(grid_rows, target_i, caller, mode) {
         await caller.invalidateControl();
         caller.updateMessage('<BR>To apply the installed/disabled/enabled custom node, please restart ComfyUI.');
 	}
+}
+
+async function exportComfyInfo() {
+	app.ui.dialog.show('To be implemented.');
+	app.ui.dialog.element.style.zIndex = 9999;
 }
 
 async function updateComfyUI() {
@@ -1796,6 +1801,14 @@ class BlueberryMenuDialog extends ComfyDialog {
 		uc_checkbox_text.style.color = "var(--fg-color)";
 		this.update_check_checkbox.checked = true;
 
+		export_nodes_information_button =
+				$el("button", {
+					type: "button",
+					textContent: "Export ComfyUI Information",
+					onclick:
+						() => exportComfyInfo()
+				});
+
 		update_comfyui_button =
 				$el("button", {
 					type: "button",
@@ -1880,82 +1893,84 @@ class BlueberryMenuDialog extends ComfyDialog {
 			[
 				$el("tr.td", {width:"100%"}, [$el("font", {size:6, color:"white"}, [`ComfyUI Blueberry Menu`])]),
 				$el("br", {}, []),
-				$el("div", {}, [this.local_mode_checkbox, checkbox_text, this.update_check_checkbox, uc_checkbox_text]),
-				$el("br", {}, []),
-				$el("button", {
-					type: "button",
-					textContent: "Install Custom Nodes",
-					onclick:
-						() => {
-							if(!CustomNodesInstaller.instance)
-								CustomNodesInstaller.instance = new CustomNodesInstaller(app);
-							CustomNodesInstaller.instance.show(false);
-						}
-				}),
+				export_nodes_information_button,
+				
+				// $el("div", {}, [this.local_mode_checkbox, checkbox_text, this.update_check_checkbox, uc_checkbox_text]),
+				// $el("br", {}, []),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "Install Custom Nodes",
+				// 	onclick:
+				// 		() => {
+				// 			if(!CustomNodesInstaller.instance)
+				// 				CustomNodesInstaller.instance = new CustomNodesInstaller(app);
+				// 			CustomNodesInstaller.instance.show(false);
+				// 		}
+				// }),
 
-				$el("button", {
-					type: "button",
-					textContent: "Install Missing Custom Nodes",
-					onclick:
-						() => {
-							if(!CustomNodesInstaller.instance)
-								CustomNodesInstaller.instance = new CustomNodesInstaller(app);
-							CustomNodesInstaller.instance.show(true);
-						}
-				}),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "Install Missing Custom Nodes",
+				// 	onclick:
+				// 		() => {
+				// 			if(!CustomNodesInstaller.instance)
+				// 				CustomNodesInstaller.instance = new CustomNodesInstaller(app);
+				// 			CustomNodesInstaller.instance.show(true);
+				// 		}
+				// }),
 
-				$el("button", {
-					type: "button",
-					textContent: "Install Models",
-					onclick:
-						() => {
-							if(!ModelInstaller.instance)
-								ModelInstaller.instance = new ModelInstaller(app);
-							ModelInstaller.instance.show();
-						}
-				}),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "Install Models",
+				// 	onclick:
+				// 		() => {
+				// 			if(!ModelInstaller.instance)
+				// 				ModelInstaller.instance = new ModelInstaller(app);
+				// 			ModelInstaller.instance.show();
+				// 		}
+				// }),
 
-                $el("br", {}, []),
-				update_all_button,
-				update_comfyui_button,
-				fetch_updates_button,
+                // $el("br", {}, []),
+				// update_all_button,
+				// update_comfyui_button,
+				// fetch_updates_button,
 
-				$el("br", {}, []),
-				$el("button", {
-					type: "button",
-					textContent: "Alternatives of A1111",
-					onclick:
-						() => {
-							if(!AlternativesInstaller.instance)
-								AlternativesInstaller.instance = new AlternativesInstaller(app);
-							AlternativesInstaller.instance.show();
-						}
-				}),
+				// $el("br", {}, []),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "Alternatives of A1111",
+				// 	onclick:
+				// 		() => {
+				// 			if(!AlternativesInstaller.instance)
+				// 				AlternativesInstaller.instance = new AlternativesInstaller(app);
+				// 			AlternativesInstaller.instance.show();
+				// 		}
+				// }),
 
-				$el("br", {}, []),
-				$el("button", {
-					type: "button",
-					textContent: "ComfyUI Community Manual",
-					onclick: () => { window.open("https://blenderneko.github.io/ComfyUI-docs/", "comfyui-community-manual"); }
-				}),
-				$el("button", {
-					type: "button",
-					textContent: "ComfyUI Workflow Gallery",
-					onclick: () => { window.open("https://comfyworkflows.com/", "comfyui-workflow-gallery"); }
-				}),
+				// $el("br", {}, []),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "ComfyUI Community Manual",
+				// 	onclick: () => { window.open("https://blenderneko.github.io/ComfyUI-docs/", "comfyui-community-manual"); }
+				// }),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "ComfyUI Workflow Gallery",
+				// 	onclick: () => { window.open("https://comfyworkflows.com/", "comfyui-workflow-gallery"); }
+				// }),
 
-				$el("button", {
-					type: "button",
-					textContent: "ComfyUI Nodes Info",
-					onclick: () => { window.open("https://ltdrdata.github.io/", "comfyui-node-info"); }
-				}),
+				// $el("button", {
+				// 	type: "button",
+				// 	textContent: "ComfyUI Nodes Info",
+				// 	onclick: () => { window.open("https://ltdrdata.github.io/", "comfyui-node-info"); }
+				// }),
 
-                $el("br", {}, []),
-				$el("hr", {width: "100%"}, []),
-				preview_combo,
-				badge_combo,
-				channel_combo,
-				$el("hr", {width: "100%"}, []),
+                // $el("br", {}, []),
+				// $el("hr", {width: "100%"}, []),
+				// preview_combo,
+				// badge_combo,
+				// channel_combo,
+				// $el("hr", {width: "100%"}, []),
                 $el("br", {}, []),
 
 				$el("button", {
