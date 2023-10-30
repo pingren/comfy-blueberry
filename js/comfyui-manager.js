@@ -174,9 +174,6 @@ async function exportComfyInfo() {
 	// Builtin nodes are included in app.graph.serialize().nodes
 	// https://github.com/comfyanonymous/ComfyUI/blob/41b07ff8d7807292b56147e12347ab96972c9406/nodes.py#L1659
 
-	app.ui.dialog.show('To be implemented.');
-	app.ui.dialog.element.style.zIndex = 9999;
-
 	const data = (await getCustomNodes()).custom_nodes;
 	const mappings = await getCustomnodeMappings();
 
@@ -199,7 +196,7 @@ async function exportComfyInfo() {
 
 	const custom_graph_nodes_data = data.filter(node => node.files.some(file => graph_nodes.has(file)));
 
-	console.log("Graph Custom Nodes:", custom_graph_nodes_data);
+	// console.log("Graph Custom Nodes:", custom_graph_nodes_data);
 
 	const response = await api.fetchApi(`/blueberry/info`,  {
 		method: 'POST',
@@ -208,6 +205,30 @@ async function exportComfyInfo() {
 	});
 	const info = await response.json();
 	console.log("Info: ", info);
+
+	const info_text = JSON.stringify(info, null, 2);
+	// console.log("Info Text: ", info_text);
+
+	const info_textarea = document.createElement('textarea');
+	info_textarea.value = info_text;
+	info_textarea.readOnly = true;
+	info_textarea.style.width = "70vw";
+	info_textarea.style.height = "600px";
+	info_textarea.style.resize = "none";
+	info_textarea.style.border = "none";
+	
+	const copy_button = document.createElement('button');
+	copy_button.innerText = "Copy to Clipboard";
+	copy_button.style.width = "100%";
+	copy_button.style.height = "30px";
+	copy_button.onclick = function () {
+		navigator.clipboard.writeText(info_textarea.value);
+	}
+
+	const element = $el("div", { parent: document.body }, [info_textarea, copy_button]);
+
+	app.ui.dialog.show(element);
+	app.ui.dialog.element.style.zIndex = 9999;
 }
 
 async function updateComfyUI() {
