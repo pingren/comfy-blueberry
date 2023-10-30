@@ -605,18 +605,54 @@ async def fetch_customnode_list(request):
     return web.json_response(json_obj, content_type='application/json')
 
 @server.PromptServer.instance.routes.post("/blueberry/info")
-async def install_custom_node(request):
+async def get_nodes_commit_hash(request):
     json_data = await request.json()
 
     print(f"Info Payload '{json_data}'")
 
+    for item in json_data:
+        check_a_custom_node_commit_hash(item)
     res = True
 
     if res:
         print(f"After restarting ComfyUI, please refresh the browser.")
-        return web.json_response({}, content_type='application/json')
+        return web.json_response(json_data, content_type='application/json')
 
     return web.Response(status=400)
+
+def check_a_custom_node_commit_hash(item):
+    item['commit'] = ''
+
+    if item['install_type'] == 'git-clone' and len(item['files']) == 1:
+        url = item['files'][0]
+
+        if url.endswith("/"):
+            url = url[:-1]
+
+        dir_name = os.path.splitext(os.path.basename(url))[0].replace(".git", "")
+        dir_path = os.path.join(custom_nodes_path, dir_name)
+        if os.path.exists(dir_path):
+            try:
+                item['commit'] = get_git_commit_hash(dir_path)
+            except:
+                pass
+
+def get_git_commit_hash(path):
+    print(f"Fetching commit hash from: {path}")
+
+    # Check if the path is a git repository
+    if not os.path.exists(os.path.join(path, '.git')):
+        raise ValueError('Not a git repository')
+
+    if platform.system() == "Windows":
+        print(f"Warning: Windows is not guaranteed to work properly. Let us know if you have any problems.")
+
+    # Fetch the latest commits from the remote repository
+    repo = git.Repo(path)
+
+    commit_hash = repo.head.commit.hexsha
+    return commit_hash
+    
 
 # @server.PromptServer.instance.routes.get("/alternatives/getlist")
 # async def fetch_alternatives_list(request):
