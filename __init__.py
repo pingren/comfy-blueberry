@@ -615,7 +615,21 @@ async def get_nodes_commit_hash(request):
     res = True
 
     if res:
-        print(f"After restarting ComfyUI, please refresh the browser.")
+        repo = git.Repo(os.path.dirname(folder_paths.__file__))
+        comfy_ui_revision = len(list(repo.iter_commits('HEAD')))
+        git_hash = repo.head.commit.hexsha
+        # append a object json data
+        json_data.insert(0, {
+            "author": "comfyanonymous",
+            "title": "ComfyUI",
+            "reference": "https://github.com/comfyanonymous/ComfyUI",
+            "files": [],
+            "install_type": "git-clone",
+            "description": "ComfyUI is a user interface for Comfy.",
+            "installed": "True",
+            "commit": git_hash,
+            "version": comfy_ui_revision,
+        })
         return web.json_response(json_data, content_type='application/json')
 
     return web.Response(status=400)
